@@ -75,6 +75,9 @@
           <p>Data Supplier</p>
         </a>
       </li>
+      <div>
+        <a href="{{url('logout')}}" class="btn btn-sm btn-danger">Logout</a>
+      </div>
     </ul>
   </nav>
 </div>
