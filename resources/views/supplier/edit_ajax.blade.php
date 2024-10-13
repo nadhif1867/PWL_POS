@@ -1,63 +1,121 @@
-@extends('layouts.template')
-
-@section('content')
-<div class="card card-outline card-primary">
-    <div class="card-header">
-        <h3 class="card-title">{{ $page->title }}</h3>
-        <div class="card-tools"></div>
-    </div>
-    <div class="card-body">
-        @empty($supplier)
-        <div class="alert alert-danger alert-dismissible">
-            <h5><i class="icon fas fa-ban"></i> Kesalahan!</h5>
-            Data yang Anda cari tidak ditemukan.
+@empty($supplier)
+<div id="modal-master" class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Kesalahan</h5>
+            <button type="button" class="close" data-dismiss="modal" aria label="Close"><span
+                    aria-hidden="true">&times;</span></button>
         </div>
-        <a href="{{ url('supplier') }}" class="btn btn-sm btn-default mt-2">Kembali</a>
-        @else
-        <form method="POST" action="{{ url('/supplier/' . $supplier->supplier_id) }}" class="form-horizontal">
-            @csrf
-            {!! method_field('PUT') !!}
-            <div class="form-group row">
-                <label class="col-1 control-label col-form-label">Supplier Kode</label>
-                <div class="col-11">
-                    <input type="text" class="form-control" id="supplier_kode" name="supplier_kode" value="{{ old('supplier_kode', $supplier->supplier_kode) }}" required>
-                    @error('supplier_kode')
-                    <small class="form-text text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
+        <div class="modal-body">
+            <div class="alert alert-danger">
+                <h5><i class="icon fas fa-ban"></i> Kesalahan!!!</h5>
+                Data yang anda cari tidak ditemukan
             </div>
-            <div class="form-group row">
-                <label class="col-1 control-label col-form-label">Supplier Nama</label>
-                <div class="col-11">
-                    <input type="text" class="form-control" id="supplier_nama" name="supplier_nama" value="{{ old('supplier_nama', $supplier->supplier_nama) }}" required>
-                    @error('supplier_nama')
-                    <small class="form-text text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-1 control-label col-form-label">Supplier Alamat</label>
-                <div class="col-11">
-                    <input type="text" class="form-control" id="supplier_alamat" name="supplier_alamat" value="{{ old('supplier_alamat', $supplier->supplier_alamat) }}" required>
-                    @error('supplier_alamat')
-                    <small class="form-text text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-1 control-label col-form-label"></label>
-                <div class="col-11">
-                    <button type="submit" class="btn btn-primary btn-sm">Simpan</button>
-                    <a class="btn btn-sm btn-default ml-1" href="{{ url('supplier') }}">Kembali</a>
-                </div>
-            </div>
-        </form>
-        @endempty
+            <a href="{{ url('/supplier') }}" class="btn btn-warning">Kembali</a>
+        </div>
     </div>
 </div>
-@endsection
-
-@push('css')
-@endpush
-@push('js')
-@endpush
+@else
+<form action="{{ url('/supplier/' . $supplier->supplier_id . '/update_ajax') }}" method="POST" id="form-edit">
+    @csrf
+    @method('PUT')
+    <div id="modal-master" class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit Data User</h5>
+                <button type="button" class="close" data-dismiss="modal" aria label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Supplier Kode</label>
+                    <input value="{{ $supplier->supplier_kode }}" type="text" name="supplier_kode" id="name"
+                        class="form-control" required>
+                    <small id="error-supplier_kode" class="error-text form-text text-danger"></small>
+                </div>
+                <div class="form-group">
+                    <label>Supplier Nama</label>
+                    <input value="{{ $supplier->supplier_nama }}" type="text" name="supplier_nama" id="supplier_nama"
+                        class="form-control" required>
+                    <small id="error-supplier_nama" class="error-text form-text text-danger"></small>
+                </div>
+                <div class="form-group">
+                    <label>Supplier Alamat</label>
+                    <input value="{{ $supplier->supplier_alamat }}" type="text" name="supplier_alamat" id="supplier_alamat"
+                        class="form-control" required>
+                    <small id="error-supplier_alamat" class="error-text form-text text-danger"></small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-dismiss="modal" class="btn btn-warning">Batal</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    $(document).ready(function() {
+        $("#form-edit").validate({
+            rules: {
+                supplier_kode: {
+                    required: true,
+                    minlength: 3,
+                    maxlength: 10
+                },
+                supplier_nama: {
+                    required: true,
+                    maxlength: 100
+                },
+                no_telp: {
+                    required: true,
+                    maxlength: 255
+                },
+                no_telp: {
+                    required: true,
+                    maxlength: 15
+                },
+            },
+            submitHandler: function(form) {
+                $.ajax({
+                    url: form.action,
+                    type: form.method,
+                    data: $(form).serialize(),
+                    success: function(response) {
+                        if (response.status) {
+                            $('#myModal').modal('hide');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: response.message
+                            });
+                            dataUser.ajax.reload();
+                        } else {
+                            $('.error-text').text('');
+                            $.each(response.msgField, function(prefix, val) {
+                                $('#error-' + prefix).text(val[0]);
+                            });
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Terjadi Kesalahan',
+                                text: response.message
+                            });
+                        }
+                    }
+                });
+                return false;
+            },
+            errorElement: 'span',
+            errorPlacement: function(error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.form-group').append(error);
+            },
+            highlight: function(element, errorClass, validClass) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function(element, errorClass, validClass) {
+                $(element).removeClass('is-invalid');
+            }
+        });
+    });
+</script>
+@endempty
