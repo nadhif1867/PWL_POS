@@ -49,7 +49,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}', [UserController::class, 'destroy']); // Menghapus data user
     });
 
-    Route::group(['prefix' => 'level'], function () {
+    // Route::group(['prefix' => 'level'], function () {
+    Route::middleware('authorize:ADM')->group(function(){
         Route::get('/', [LevelController::class, 'index']);
         Route::post('/list', [LevelController::class, 'list']);
         Route::get('/create', [LevelController::class, 'create']);
