@@ -12,22 +12,103 @@ ack">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/fontawesome-free/css/all.min.css') }}">
     <!-- icheck bootstrap -->
-    <link rel="stylesheet" href="{{ asset('adminlte/plugins/icheck-bootstrap/icheck-bootstrap.min.css')
-}}">
+    <link rel="stylesheet" href="{{ asset('adminlte/plugins/icheck-bootstrap/icheck-bootstrap.min.css') }}">
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/sweetalert2-theme-bootstrap-4/bootstrap4.min.css') }}">
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ asset('adminlte/dist/css/adminlte.min.css') }}">
+    <!-- Custom CSS for enhancement -->
+    <style>
+        body {
+            background: linear-gradient(135deg, #71b7e6, #9b59b6);
+            font-family: 'Source Sans Pro', sans-serif;
+        }
+
+        .login-box {
+            margin: auto;
+            padding: 20px;
+            max-width: 400px;
+        }
+
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            background-color: #9b59b6;
+            color: #fff;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .btn-primary {
+            background-color: #9b59b6;
+            border-color: #9b59b6;
+        }
+
+        .btn-primary:hover {
+            background-color: #8e44ad;
+            border-color: #8e44ad;
+        }
+
+        .input-group-text {
+            background-color: #9b59b6;
+            color: #fff;
+            border-color: #9b59b6;
+        }
+
+        .input-group-text:hover {
+            background-color: #8e44ad;
+            border-color: #8e44ad;
+        }
+
+        .form-control {
+            border-radius: 20px;
+        }
+
+        .login-box-msg {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .register-link {
+            color: #9b59b6;
+            font-weight: bold;
+        }
+
+        .register-link:hover {
+            color: #8e44ad;
+        }
+
+        .card-body {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 
 <body class="hold-transition login-page">
     <div class="login-box">
         <!-- /.login-logo -->
         <div class="card card-outline card-primary">
-            <div class="card-header text-center"><a href="{{ url('/') }}"
-                    class="h1"><b>Admin</b>LTE</a></div>
+            <div class="card-header text-center">
+                <a href="{{ url('/') }}" class="h1"><b>Admin</b>LTE</a>
+            </div>
             <div class="card-body">
                 <p class="login-box-msg">Sign in to start your session</p>
+
                 <form action="{{ url('login') }}" method="POST" id="form-login">
                     @csrf
                     <div class="input-group mb-3">
@@ -43,9 +124,9 @@ ack">
                     <div class="input-group mb-3">
                         <input type="password" id="password" name="password" class="form-control"
                             placeholder="Password">
-                        <div class="input-group-append">
+                        <div class="input-group-append show-password">
                             <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
+                                <span class="fas fa-lock" id="password-lock"></span>
                             </div>
                         </div>
                         <small id="error-password" class="error-text text-danger"></small>
@@ -53,7 +134,8 @@ ack">
                     <div class="row">
                         <div class="col-8">
                             <div class="icheck-primary">
-                                <input type="checkbox" id="remember"><label for="remember">Remember Me</label>
+                                <input type="checkbox" id="remember">
+                                <label for="remember">Remember Me</label>
                             </div>
                         </div>
                         <!-- /.col -->
@@ -63,6 +145,10 @@ ack">
                         <!-- /.col -->
                     </div>
                 </form>
+
+                <div>
+                    <p>Belum punya akun? <a href="{{ url('register') }}" class="register-link">Register</a></p>
+                </div>
             </div>
             <!-- /.card-body -->
         </div>
@@ -86,6 +172,7 @@ ack">
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
+
         $(document).ready(function() {
             $("#form-login").validate({
                 rules: {
@@ -100,50 +187,70 @@ ack">
                         maxlength: 20
                     }
                 },
-                submitHandler: function(form) { // ketika valid, maka bagian yg akan dijalankan
+                submitHandler: function(form) {
                     $.ajax({
                         url: form.action,
                         type: form.method,
                         data: $(form).serialize(),
                         success: function(response) {
-                            if (response.status) { // jika sukses
+                            if (response.status) {
+                                // Notifikasi sukses dengan animasi lebih menarik
                                 Swal.fire({
-                                    // position: "center",
                                     icon: 'success',
-                                    title: 'Berhasil',
+                                    title: 'Login Berhasil!',
                                     text: response.message,
+                                    showClass: {
+                                        popup: 'animate__animated animate__fadeInDown'
+                                    },
+                                    hideClass: {
+                                        popup: 'animate__animated animate__fadeOutUp'
+                                    },
+                                    timer: 1500, // Notifikasi otomatis tertutup setelah 1,5 detik
+                                    timerProgressBar: true,
+                                    showConfirmButton: false
                                 }).then(function() {
-                                    window.location = response.redirect;
+                                    window.location = response.redirect; // Redirect setelah sukses
                                 });
-                            } else { // jika error
+                            } else {
+                                // Notifikasi error jika login gagal
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal Login',
+                                    text: response.message,
+                                    showClass: {
+                                        popup: 'animate__animated animate__shakeX'
+                                    },
+                                    hideClass: {
+                                        popup: 'animate__animated animate__fadeOut'
+                                    },
+                                    confirmButtonText: 'Coba Lagi'
+                                });
+
+                                // Menampilkan error di setiap field
                                 $('.error-text').text('');
                                 $.each(response.msgField, function(prefix, val) {
                                     $('#error-' + prefix).text(val[0]);
                                 });
-                                Swal.fire({
-                                    // position: "center",
-                                    icon: 'error',
-                                    title: 'Terjadi Kesalahan',
-                                    text: response.message
-                                });
                             }
                         }
                     });
-                    return false;
-                },
-                errorElement: 'span',
-                errorPlacement: function(error, element) {
-                    error.addClass('invalid-feedback');
-                    element.closest('.input-group').append(error);
-                },
-                highlight: function(element, errorClass, validClass) {
-                    $(element).addClass('is-invalid');
-                },
-                unhighlight: function(element, errorClass, validClass) {
-                    $(element).removeClass('is-invalid');
+                    return false; // Mencegah submit form default
                 }
+
             });
         });
+    </script>
+    <script>
+        // show password 
+        $('.show-password').on('click', function() {
+            if ($('#password').attr('type') == 'password') {
+                $('#password').attr('type', 'text');
+                $('#password-lock').attr('class', 'fas fa-unlock');
+            } else {
+                $('#password').attr('type', 'password');
+                $('#password-lock').attr('class', 'fas fa-lock');
+            }
+        })
     </script>
 </body>
 

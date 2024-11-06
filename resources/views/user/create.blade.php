@@ -1,4 +1,5 @@
 @extends('layouts.template')
+
 @section('content')
 <div class="card card-outline card-primary">
     <div class="card-header">
@@ -13,7 +14,7 @@
                 <div class="col-11">
                     <select class="form-control" id="level_id" name="level_id" required>
                         <option value="">- Pilih Level -</option>
-                        @foreach($level as $item)
+                        @foreach ($level as $item)
                         <option value="{{ $item->level_id }}">{{ $item->level_nama }}</option>
                         @endforeach
                     </select>
@@ -25,8 +26,8 @@
             <div class="form-group row">
                 <label class="col-1 control-label col-form-label">Username</label>
                 <div class="col-11">
-                    <input type="text" class="form-control" id="username" name="username" value="{{
-old('username') }}" required>
+                    <input type="text" class="form-control" id="username" name="username"
+                        value="{{ old('username') }}" required>
                     @error('username')
                     <small class="form-text text-danger">{{ $message }}</small>
                     @enderror
@@ -35,9 +36,19 @@ old('username') }}" required>
             <div class="form-group row">
                 <label class="col-1 control-label col-form-label">Nama</label>
                 <div class="col-11">
-                    <input type="text" class="form-control" id="nama" name="nama" value="{{
-old('nama') }}" required>
+                    <input type="text" class="form-control" id="nama" name="nama" value="{{ old('nama') }}"
+                        required>
                     @error('nama')
+                    <small class="form-text text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-1 control-label col-form-label">Foto Profil</label>
+                <div class="col-11">
+                    <input type="file" class="form-control" id="file_profil" name="file_profil" value="{{ old('file_profil') }}"
+                        required>
+                    @error('file_profil')
                     <small class="form-text text-danger">{{ $message }}</small>
                     @enderror
                 </div>
@@ -45,8 +56,7 @@ old('nama') }}" required>
             <div class="form-group row">
                 <label class="col-1 control-label col-form-label">Password</label>
                 <div class="col-11">
-                    <input type="password" class="form-control" id="password" name="password"
-                        required>
+                    <input type="password" class="form-control" id="password" name="password" required>
                     @error('password')
                     <small class="form-text text-danger">{{ $message }}</small>
                     @enderror
